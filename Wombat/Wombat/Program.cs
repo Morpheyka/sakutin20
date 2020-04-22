@@ -2,34 +2,34 @@
 
 namespace Wombat
 {
-    abstract class Entity
+    abstract class Unit
     {
-        public int health;
+        private int _health;
 
         public void TakeDamage(int damage)
         {
             ApplyDamage(damage);
 
-            if (health <= 0)
+            if (_health <= 0)
                 Console.WriteLine("I'm died");
         }
 
         protected abstract void ApplyDamage(int damage);
     }
 
-    class Wombat : Entity
+    class Wombat : Unit
     {
-        public int armor;
+        private int _armor;
 
         protected override void ApplyDamage(int damage) =>
-            health -= damage - armor;
+            _health -= damage - _armor;
     }
 
-    class Human : Entity
+    class Human : Unit
     {
-        public int agility;
+        private int _agility;
 
         protected override void ApplyDamage(int damage) =>
-            health -= damage / agility;
+            _health -= damage / _agility;
     }
 }
