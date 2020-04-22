@@ -1,16 +1,16 @@
-﻿using System;
+using System;
 
 namespace Wombat
 {
     abstract class Unit
     {
-        private int _health;
+        protected int health;
 
         public void TakeDamage(int damage)
         {
             ApplyDamage(damage);
 
-            if (_health <= 0)
+            if (health <= 0)
                 Console.WriteLine("I'm died");
         }
 
@@ -22,7 +22,7 @@ namespace Wombat
         private int _armor;
 
         protected override void ApplyDamage(int damage) =>
-            _health -= damage - _armor;
+            health -= damage - _armor;
     }
 
     class Human : Unit
@@ -30,6 +30,6 @@ namespace Wombat
         private int _agility;
 
         protected override void ApplyDamage(int damage) =>
-            _health -= damage / _agility;
+            health -= damage / _agility;
     }
 }
