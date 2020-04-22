@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,24 +7,33 @@ namespace DataDefence
     class Bag
     {
         public IEnumerable<IReadOnlyItem> Items => _items;
-        public readonly uint maxWeidth;
         private readonly List<Item> _items = new List<Item>();
+        private readonly uint _maxWeidth;
 
         public Bag(uint maxWeidth) =>
-            this.maxWeidth = maxWeidth;
+            _maxWeidth = maxWeidth;
 
-        public void AddItem(string name, int count)
+        public void AddItem(Item item, int count)
         {
-            int currentWeidth = _items.Sum(item => item.count);
-            Item targetItem = _items.FirstOrDefault(item => item.name == name);
-
-            _ = targetItem
+            _ = item
                 ?? throw new InvalidOperationException();
 
-            targetItem.count = currentWeidth + count > maxWeidth
-                ? throw new InvalidOperationException()
-                : targetItem.count + count;
+            if (FitInBag(count) == false)
+                throw new InvalidOperationException();
+
+            if (Contains(item) == false)
+                _items.Add(item);
+
+            item.count += count;
         }
+
+        private bool Contains(Item item) =>
+            _items.FirstOrDefault(targetItem => targetItem == item) != null;
+
+        private bool FitInBag(int weight) =>
+            GetCurrentWeight() + weight < _maxWeidth;
+
+        private int GetCurrentWeight() => _items.Sum(item => item.count);
     }
 
     class Item : IReadOnlyItem
