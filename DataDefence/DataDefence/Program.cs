@@ -7,45 +7,59 @@ namespace DataDefence
     class Bag
     {
         public IEnumerable<IReadOnlyItem> Items => _items;
-        private readonly List<Item> _items = new List<Item>();
-        private readonly uint _maxWeidth;
 
-        public Bag(uint maxWeidth) =>
+        private readonly List<Item> _items = new List<Item>();
+        private readonly uint _maxWeidth = 0;
+
+        public Bag(uint maxWeidth)
+        {
             _maxWeidth = maxWeidth;
+        }
 
         public void AddItem(Item item, int count)
         {
-            _ = item
-                ?? throw new InvalidOperationException();
+            if (item == null)
+                throw new ArgumentNullException();
 
             if (FitInBag(count) == false)
                 throw new InvalidOperationException();
 
-            if (Contains(item) == false)
-                _items.Add(item);
-
-            item.count += count;
+            if (TryGetItemByName(item.Name, out Item exist))
+                exist.Count += count;
+            else
+                _items.Add(new Item(item.Count, item.Name));
         }
 
-        private bool Contains(Item item) =>
-            _items.FirstOrDefault(targetItem => targetItem == item) != null;
+        private bool TryGetItemByName(string name, out Item result)
+        {
+            result = _items.FirstOrDefault(targetItem => targetItem.Name == name);
 
-        private bool FitInBag(int weight) =>
-            GetCurrentWeight() + weight < _maxWeidth;
+            return result != null;
+        }
 
-        private int GetCurrentWeight() => _items.Sum(item => item.count);
+        private bool FitInBag(int weight)
+        {
+            return GetCurrentWeight() + weight < _maxWeidth;
+        }
+
+        private int GetCurrentWeight()
+        {
+            return _items.Sum(item => item.Count);
+        }
     }
 
     class Item : IReadOnlyItem
     {
-        public readonly string name;
-        public int count;
+        public readonly string Name = string.Empty;
+        public int Count = 0;
 
-        public Item(int count, string name) =>
-            (this.name, this.count) = (name, count);
+        public Item(int count, string name)
+        {
+            (Name, Count) = (name, count);
+        }
 
-        int IReadOnlyItem.Count => count;
-        string IReadOnlyItem.Name => name;
+        int IReadOnlyItem.Count => Count;
+        string IReadOnlyItem.Name => Name;
     }
 
     interface IReadOnlyItem
