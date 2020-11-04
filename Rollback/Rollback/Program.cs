@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Collections.Generic;
 
@@ -34,30 +34,37 @@ namespace Rollback
             _executedCommands = new Stack<ICommand>(20);
         }
 
-
         public void CreateAccount(uint money)
         {
-            _executedCommands.Push(new CreateAccount(_accounts, money));
-            _executedCommands.Peek().Execute();
+            ExecuteCommand(new CreateAccount(_accounts, money));
         }
 
         public void Transfer(uint ownerID, uint targetID, uint money)
         {
-            _executedCommands.Push(new MoneyTransfer(GetAccountByID(ownerID), GetAccountByID(targetID), money));
-            _executedCommands.Peek().Execute();
+            ExecuteCommand(new MoneyTransfer(GetAccountByID(ownerID), GetAccountByID(targetID), money));
         }
 
         public void CloseAccount(uint id)
         {
-            _executedCommands.Push(new CloseAccount(_accounts, id));
+            ExecuteCommand(new CloseAccount(_accounts, id));
+        }
+
+        private void ExecuteCommand(ICommand command)
+        {
+            _executedCommands.Push(command);
             _executedCommands.Peek().Execute();
         }
 
-        private Account GetAccountByID(uint id) =>
-            _accounts.FirstOrDefault(account => account.GetID() == id)
-            ?? throw new ArgumentException(paramName: nameof(id), message: "You try get non-existent account.");
+        private Account GetAccountByID(uint id)
+        {
+            return _accounts.FirstOrDefault(account => account.GetID() == id)
+                ?? throw new ArgumentException(nameof(id), "You try get non-existent account.");
+        }
 
-        public void Undo() => _executedCommands.Pop().Undo();
+        public void Undo()
+        {
+            _executedCommands.Pop().Undo();
+        }
     }
 
     class Account : IBankAccount
@@ -65,11 +72,15 @@ namespace Rollback
         private readonly uint _id;
         private uint _money;
 
-        public Account(uint id) =>
-            (this._id) = (id);
+        public Account(uint id)
+        {
+            _id = id;
+        }
 
-        public Account(uint id, uint money) : this(id) =>
-            (this._id, _money) = (id, money);
+        public Account(uint id, uint money) : this(id)
+        {
+            (_id, _money) = (id, money);
+        }
 
         public uint GetID() => _id;
         public uint GetMoneyAmount() => _money;
@@ -96,11 +107,15 @@ namespace Rollback
         private readonly uint _createdID;
         private readonly uint _money;
 
-        public CreateAccount(List<Account> accounts, uint money) =>
+        public CreateAccount(List<Account> accounts, uint money)
+        {
             (_accounts, _createdID, _money) = (accounts, (uint)accounts.Count, money);
+        }
 
-        public void Execute() =>
+        public void Execute()
+        {
             _accounts.Add(new Account(_createdID, _money));
+        }
 
         public void Undo()
         {
@@ -115,8 +130,10 @@ namespace Rollback
         private readonly Account _target;
         private readonly uint _value;
 
-        public MoneyTransfer(Account ower, Account target, uint value) =>
+        public MoneyTransfer(Account ower, Account target, uint value)
+        {
             (_ower, _target, _value) = (ower, target, value);
+        }
 
         public void Execute()
         {
