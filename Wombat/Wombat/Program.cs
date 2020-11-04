@@ -8,28 +8,32 @@ namespace Wombat
 
         public void TakeDamage(int damage)
         {
-            _health -= ApplyDamage(damage);
+            _health -= CalculateDamage(damage);
 
             if (_health <= 0)
                 Console.WriteLine("I'm died");
         }
 
-        protected abstract int ApplyDamage(int damage);
+        protected abstract int CalculateDamage(int damage);
     }
 
     class Wombat : Unit
     {
         private int _armor;
 
-        protected override int ApplyDamage(int damage) =>
-            damage - _armor;
+        protected override int CalculateDamage(int damage)
+        {
+            return damage - _armor;
+        }
     }
 
     class Human : Unit
     {
         private int _agility;
 
-        protected override int ApplyDamage(int damage) =>
-            damage / _agility;
+        protected override int CalculateDamage(int damage)
+        {
+            return damage / _agility;
+        }
     }
 }
